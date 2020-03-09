@@ -8,6 +8,8 @@ import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 import calendar
 
 
@@ -171,6 +173,8 @@ class pain:
             Format to save the figure in; defaults to 'png'.
         resolution : int / float
             Image resolution in dpi; defaults to 300.
+        plotly : boolean (0/False or 1/True)
+            To make plotly of matplotlib plot; defaults to 0
         ----------
         """
 
@@ -182,6 +186,7 @@ class pain:
         savePlot = [kwargs['savePlot'] if 'savePlot' in kwargs.keys() and kwargs['savePlot'] in validBools else 0][0]
         figFormat = [kwargs['figFormat'] if 'figFormat' in kwargs.keys() and type(kwargs['figFormat']) == str else 'png'][0]
         resolution = [kwargs['resolution'] if 'resolution' in kwargs.keys() and type(kwargs['resolution']) == int else 300][0]
+        plotly = [kwargs['plotly'] if 'plotly' in kwargs.keys() and kwargs['plotly'] in validBools else 0][0]
 
         # load the .csv file with the data
         data = pd.read_csv(self.csvfile, index_col=0, sep=',')
@@ -202,80 +207,128 @@ class pain:
         precipitation = np.array(data.loc[startandenddates[0]:startandenddates[1], 'Precipitation'])
 
         # plot the figures
-        fig, ax = plt.subplots(3, 1, figsize=(40, 30))
-        ax = plt.subplot(311)
-        ax.plot(pos_ind, pos_temp, color='#EE5C42', lw=2)
-        ax.plot(neg_ind, neg_temp, color='#1E90FF', lw=2)
-        for onemonth in monthsCumulated:
-            ax.axvline(onemonth, color='#000000', lw=.25)
-        for onedayindx, oneday in enumerate(headaches):
-            if(onedayindx == 0):
-                ax.plot(oneday, data.iloc[oneday, 2], 'o', color='#008B00', ms=10, label='Headache')
-            else:
-                ax.plot(oneday, data.iloc[oneday, 2], 'o', color='#008B00', ms=10)
-        for eind, elem in enumerate(tempMins):
-            if(not np.isnan(elem) and not np.isnan(tempMaxs[eind])):
-                if(elem >= 0 and tempMaxs[eind] > 0):
-                    ax.bar(x=eind, height=(tempMaxs[eind]-elem), width=1, bottom=elem, align='center', color='#EE5C42', alpha=.2)
-                elif(elem < 0 and tempMaxs[eind] <= 0):
-                    ax.bar(x=eind, height=(abs(elem)-abs(tempMaxs[eind])), width=1, bottom=elem, align='center', color='#1E90FF', alpha=.2)
+        if(not plotly):
+            fig, ax = plt.subplots(3, 1, figsize=(40, 30))
+            ax = plt.subplot(311)
+            ax.plot(pos_ind, pos_temp, color='#EE5C42', lw=2)
+            ax.plot(neg_ind, neg_temp, color='#1E90FF', lw=2)
+            for onemonth in monthsCumulated:
+                ax.axvline(onemonth, color='#000000', lw=.25)
+            for onedayindx, oneday in enumerate(headaches):
+                if(onedayindx == 0):
+                    ax.plot(oneday, data.iloc[oneday, 2], 'o', color='#008B00', ms=10, label='Headache')
                 else:
-                    ax.bar(x=eind, height=tempMaxs[eind], width=1, bottom=0, align='center', color='#EE5C42', alpha=.2)
-                    ax.bar(x=eind, height=abs(elem), width=1, bottom=elem, align='center', color='#1E90FF', alpha=.2)
-        ax.set_title('Weather-related headaches {} to {}'.format(monthIDs[0], monthIDs[-1]), fontsize=30, pad=20)
-        ax.legend(loc='upper left', prop={'size': 15})
-        ax.set_xlim(0, len(tempMins))
-        ax.set_xticks(monthCenters)
-        ax.set_xticklabels(monthIDs, fontsize=20)
-        ax.set_yticks(np.arange(-15, 35, 5.))
-        ax.set_yticklabels([int(num) for num in np.arange(-15, 35, 5.)], fontsize=20)
-        ax.set_ylabel(u'Temperature (℃)', fontsize=25)
-        ax.tick_params(axis='both', which='both', length=0)
-        ax.text(310, 35, 'data source: yr.no', fontsize=15, fontweight='bold')
+                    ax.plot(oneday, data.iloc[oneday, 2], 'o', color='#008B00', ms=10)
+            for eind, elem in enumerate(tempMins):
+                if(not np.isnan(elem) and not np.isnan(tempMaxs[eind])):
+                    if(elem >= 0 and tempMaxs[eind] > 0):
+                        ax.bar(x=eind, height=(tempMaxs[eind]-elem), width=1, bottom=elem, align='center', color='#EE5C42', alpha=.2)
+                    elif(elem < 0 and tempMaxs[eind] <= 0):
+                        ax.bar(x=eind, height=(abs(elem)-abs(tempMaxs[eind])), width=1, bottom=elem, align='center', color='#1E90FF', alpha=.2)
+                    else:
+                        ax.bar(x=eind, height=tempMaxs[eind], width=1, bottom=0, align='center', color='#EE5C42', alpha=.2)
+                        ax.bar(x=eind, height=abs(elem), width=1, bottom=elem, align='center', color='#1E90FF', alpha=.2)
+            ax.set_title('Weather-related headaches {} to {}'.format(monthIDs[0], monthIDs[-1]), fontsize=30, pad=20)
+            ax.legend(loc='upper left', prop={'size': 15})
+            ax.set_xlim(0, len(tempMins))
+            ax.set_xticks(monthCenters)
+            ax.set_xticklabels(monthIDs, fontsize=20)
+            ax.set_yticks(np.arange(-15, 35, 5.))
+            ax.set_yticklabels([int(num) for num in np.arange(-15, 35, 5.)], fontsize=20)
+            ax.set_ylabel(u'Temperature (℃)', fontsize=25)
+            ax.tick_params(axis='both', which='both', length=0)
+            ax.text(310, 35, 'data source: yr.no', fontsize=15, fontweight='bold')
 
-        ax2 = plt.subplot(312)
-        ax2.plot(range(len(windMean)), windMean, color='#EEDC82', lw=3, label='Mean speed')
-        ax2.plot(range(len(windMax)), windMax, color='#8B814C', lw=3, label='Max speed')
-        for onemonth in monthsCumulated:
-            ax2.axvline(onemonth, color='#000000', lw=.25)
-        for onedayindx, oneday in enumerate(headaches):
-            if(onedayindx == 0):
-                ax2.plot(oneday, data.iloc[oneday, 3], 'o', color='#008B00', ms=10, label='Headache')
-            else:
-                ax2.plot(oneday, data.iloc[oneday, 3], 'o', color='#008B00', ms=10, )
-        ax2.legend(loc='upper left', prop={'size': 15})
-        ax2.set_xlim(0, len(windMax))
-        ax2.set_xticks(monthCenters)
-        ax2.set_xticklabels(monthIDs, fontsize=20)
-        ax2.set_yticks(np.arange(0, 15, 2))
-        ax2.set_yticklabels([int(num) for num in np.arange(0, 15, 2)], fontsize=20)
-        ax2.set_ylabel('Wind speed (m/s)', fontsize=25)
-        ax2.tick_params(axis='both', which='both', length=0)
+            ax2 = plt.subplot(312)
+            ax2.plot(range(len(windMean)), windMean, color='#EEDC82', lw=3, label='Mean speed')
+            ax2.plot(range(len(windMax)), windMax, color='#8B814C', lw=3, label='Max speed')
+            for onemonth in monthsCumulated:
+                ax2.axvline(onemonth, color='#000000', lw=.25)
+            for onedayindx, oneday in enumerate(headaches):
+                if(onedayindx == 0):
+                    ax2.plot(oneday, data.iloc[oneday, 3], 'o', color='#008B00', ms=10, label='Headache')
+                else:
+                    ax2.plot(oneday, data.iloc[oneday, 3], 'o', color='#008B00', ms=10, )
+            ax2.legend(loc='upper left', prop={'size': 15})
+            ax2.set_xlim(0, len(windMax))
+            ax2.set_xticks(monthCenters)
+            ax2.set_xticklabels(monthIDs, fontsize=20)
+            ax2.set_yticks(np.arange(0, 15, 2))
+            ax2.set_yticklabels([int(num) for num in np.arange(0, 15, 2)], fontsize=20)
+            ax2.set_ylabel('Wind speed (m/s)', fontsize=25)
+            ax2.tick_params(axis='both', which='both', length=0)
 
-        ax3 = plt.subplot(313)
-        ax3.plot(range(len(precipitation)), precipitation, color='#104E8B', lw=3)
-        for onemonth in monthsCumulated:
-            ax3.axvline(onemonth, color='#000000', lw=.25)
-        for onedayindx, oneday in enumerate(headaches):
-            if(onedayindx == 0):
-                ax3.plot(oneday, data.iloc[oneday, 5], 'o', color='#008B00', ms=10, label='Headache')
-            else:
-                ax3.plot(oneday, data.iloc[oneday, 5], 'o', color='#008B00', ms=10, )
-        ax3.legend(loc='upper left', prop={'size': 15})
-        ax3.set_xlim(0, len(precipitation))
-        ax3.set_xticks(monthCenters)
-        ax3.set_xticklabels(monthIDs, fontsize=20)
-        ax3.set_ylim(0)
-        ax3.set_yticks(np.arange(0, 40, 5))
-        ax3.set_yticklabels([int(num) for num in np.arange(0, 40, 5)], fontsize=20)
-        ax3.set_ylabel('Precipitation (mm)', fontsize=25)
-        ax3.tick_params(axis='both', which='both', length=0)
+            ax3 = plt.subplot(313)
+            ax3.plot(range(len(precipitation)), precipitation, color='#104E8B', lw=3)
+            for onemonth in monthsCumulated:
+                ax3.axvline(onemonth, color='#000000', lw=.25)
+            for onedayindx, oneday in enumerate(headaches):
+                if(onedayindx == 0):
+                    ax3.plot(oneday, data.iloc[oneday, 5], 'o', color='#008B00', ms=10, label='Headache')
+                else:
+                    ax3.plot(oneday, data.iloc[oneday, 5], 'o', color='#008B00', ms=10, )
+            ax3.legend(loc='upper left', prop={'size': 15})
+            ax3.set_xlim(0, len(precipitation))
+            ax3.set_xticks(monthCenters)
+            ax3.set_xticklabels(monthIDs, fontsize=20)
+            ax3.set_ylim(0)
+            ax3.set_yticks(np.arange(0, 40, 5))
+            ax3.set_yticklabels([int(num) for num in np.arange(0, 40, 5)], fontsize=20)
+            ax3.set_ylabel('Precipitation (mm)', fontsize=25)
+            ax3.tick_params(axis='both', which='both', length=0)
 
-        plt.show()
-        if(savePlot):
-            fig.savefig('Weather-related headaches {} to {}.{}'.format(monthIDs[0], monthIDs[-1], figFormat), bbox_inches='tight', dpi=resolution)
+            plt.show()
+            if(savePlot):
+                fig.savefig('Weather-related headaches {} to {}.{}'.format(monthIDs[0], monthIDs[-1], figFormat), bbox_inches='tight', dpi=resolution)
+
+        else:
+            fig = make_subplots(rows=3, cols=1)
+            fig.append_trace(go.Scatter(x=pos_ind, y=pos_temp, line=dict(color='#EE5C42', width=2)), row=1, col=1)
+            fig.append_trace(go.Scatter(x=neg_ind, y=neg_temp, line=dict(color='#1E90FF', width=2)), row=1, col=1)
+            for onemonth in monthsCumulated:
+                if(onemonth != 0):
+                    fig.add_shape(dict(type='line', x0=onemonth, y0=np.nanmin(tempMins), x1=onemonth, y1=np.nanmax(tempMaxs), line=dict(color='#000000', width=.1)))
+            for oneday in headaches:
+                fig.add_trace(go.Scatter(mode='markers', x=np.array(oneday), y=np.array(data.iloc[oneday, 2]), marker=dict(color='#000000', size=5)))
+            for eind, elem in enumerate(tempMins):
+                if(not np.isnan(elem) and not np.isnan(tempMaxs[eind])):
+                    if(elem >= 0 and tempMaxs[eind] > 0):
+                        fig.add_trace(go.Bar(x=np.array(eind), y=np.array(tempMaxs[eind]-elem), width=1, base=np.array(elem), marker_color='#EE5C42', opacity=.2))
+                    elif(elem < 0 and tempMaxs[eind] <= 0):
+                        fig.add_trace(go.Bar(x=np.array(eind), y=np.array(abs(elem)-abs(tempMaxs[eind])), width=1, base=np.array(elem), marker_color='#1E90FF', opacity=.2))
+                    else:
+                        fig.add_trace(go.Bar(x=np.array(eind), y=np.array(tempMaxs[eind]), width=1, base=np.zeros(1), marker_color='#EE5C42', opacity=.2))
+                        fig.add_trace(go.Bar(x=np.array(eind), y=np.array(abs(elem)), width=1, base=np.array(elem), marker_color='#1E90FF', opacity=.2))
+
+            fig.append_trace(go.Scatter(x=list(data.loc[startandenddates[0]:startandenddates[1], 'Wind_meanSpeed'].index), y=data.loc[startandenddates[0]:startandenddates[1], 'Wind_meanSpeed'], line=dict(color='#E3CF57', width=2)), row=2, col=1)
+            for onemonth in monthsCumulated:
+                if(onemonth != 0):
+                    fig.add_shape(dict(type='line', x0=onemonth, y0=0, x1=onemonth, y1=np.nanmax(windMean), line=dict(color='#000000', width=.1)), row=2, col=1)
+            for oneday in headaches:
+                fig.add_trace(go.Scatter(mode='markers', x=pd.Series(data.index[oneday]), y=pd.Series(data.iloc[oneday, 3]), marker=dict(color='#000000', size=5)), row=2, col=1)
+
+            fig.append_trace(go.Scatter(x=list(data.loc[startandenddates[0]:startandenddates[1], 'Precipitation'].index), y=data.loc[startandenddates[0]:startandenddates[1], 'Precipitation'], line=dict(color='#6495ED', width=2)), row=3, col=1)
+            for onemonth in monthsCumulated:
+                if(onemonth != 0):
+                    fig.add_shape(dict(type='line', x0=onemonth, y0=0, x1=onemonth, y1=np.nanmax(precipitation), line=dict(color='#000000', width=.1)), row=3, col=1)
+            for oneday in headaches:
+                fig.add_trace(go.Scatter(mode='markers', x=pd.Series(data.index[oneday]), y=pd.Series(data.iloc[oneday, 5]), marker=dict(color='#000000', size=5)), row=3, col=1)
+
+            fig.update_layout(height=1200, width=1000, plot_bgcolor='white', annotations=[dict(x=345, y=35, showarrow=False, text='data source: yr.no')], showlegend=False)
+            fig['layout']['xaxis1'].update(tickmode='array', tickvals=monthCenters, ticktext=[xm.replace('-', ' ') for xm in monthIDs])
+            fig['layout']['yaxis1'].update(title=u'Temperature (℃)')
+            fig['layout']['xaxis2'].update(tickmode='array', tickvals=monthCenters, ticktext=[xm.replace('-', ' ') for xm in monthIDs])
+            fig['layout']['yaxis2'].update(title='Mean wind speed (m/s)')
+            fig['layout']['xaxis3'].update(tickmode='array', tickvals=monthCenters, ticktext=[xm.replace('-', ' ') for xm in monthIDs])
+            fig['layout']['yaxis3'].update(title='Precipitation (mm)')
+            fig.show()
+
+            if(savePlot):
+                if(not os.path.exists('images')):
+                    os.mkdir('images')
+                fig.write_image('images/Weather-related headaches {} to {}.{}'.format(monthIDs[0], monthIDs[-1], figFormat))
 
 
 thecsvfile = '/home/bartulm/Insync/mimica.bartul@gmail.com/OneDrive/Work/Coding/Headache/weatherData_2019-2020.csv'
 painClass = pain(thecsvfile)
-painClass.visualize_data(startperiod='1-2019', endperiod='12-2019', savePlot=0)
+painClass.visualize_data(startperiod='1-2019', endperiod='12-2019', savePlot=1, plotly=1, figFormat='png')
