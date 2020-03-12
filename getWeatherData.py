@@ -25,9 +25,9 @@ class weather:
         weatherVars : list
             The available or desired weather variables; defaults to ['Min_temperature', 'Max_temperature', 'Mean_temperature', 'Wind_meanSpeed', 'Wind_maxSpeed', 'Precipitation'].
         weatherWeb : str
-            The json file site which contains the weather data: defaults to the Trondheim one
+            The json file site which contains the weather data; defaults to the Trondheim one.
         saveFile : str
-            The path and name of the .csv file to save the data in: defaults to 'weatherData_2019-2020'
+            The path and name of the .csv file to save the data in; defaults to 'weatherData_2019-2020'.
         ----------
         """
 

@@ -1,0 +1,5 @@
+# ignore notebooks
+*.ipynb
+# ignore images dir
+images/
+.idea/
