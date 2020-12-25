@@ -1,9 +1,0 @@
-<application>
-  <component name="DefaultFont">
-    <option name="FONT_SIZE" value="12" />
-    <option name="FONT_FAMILY" value="DejaVu Sans Mono" />
-  </component>
-  <component name="EditorSettings">
-    <option name="SHOW_QUICK_DOC_ON_MOUSE_OVER_ELEMENT" value="false" />
-  </component>
-</application>
