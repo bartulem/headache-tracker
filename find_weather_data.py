@@ -12,7 +12,7 @@ import requests
 
 def get_daily_weather_data():
 
-    # locate yourself on earth, man
+    # locate yourself on earth
     config = configparser.ConfigParser()
     config.read('.../config.ini')
     location_api_key = config['ipstack']['api']
@@ -22,6 +22,9 @@ def get_daily_weather_data():
     if True:
         current_location = geo_json['location']['geoname_id']
         current_city = geo_json['city']
+    # else:
+    #     current_location = '5391959'  # '5102922' '5134086' '5085222' '5090189' '5102922' '3190261'
+    #     current_city = 'San Francisco'  # 'Princeton' 'Rochester' 'Danbury' 'New London' 'Princeton' 'Split'
 
     current_latitude = geo_json['latitude']
     current_longitude = geo_json['longitude']

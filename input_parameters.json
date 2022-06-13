@@ -1,6 +1,6 @@
 { "pandas_loader": {
     "data_load": {
-      "file_loc": "/home/bartulm/Insync/mimica.bartul@gmail.com/OneDrive/Work/Coding/Headache/daily_weather_data.csv",
+      "file_loc": ".../daily_weather_data.csv",
       "file_separator": ",",
       "insert_derivatives": false,
       "der_variables": null
@@ -10,8 +10,8 @@
     "temperature_oscillations": {
       "start_period": "1-2021",
       "end_period": "12-2021",
-      "save_fig": false,
-      "save_dir": "",
+      "save_fig": true,
+      "save_dir": ".../figures",
       "fig_format": "png",
       "pos_temp_color": "#FF6347",
       "neg_temp_color": "#63B8FF",
