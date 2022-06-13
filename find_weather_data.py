@@ -3,11 +3,11 @@ This function is used to acquire daily weather data.
 @author: bartulem
 """
 
-import json
-import requests
 import configparser
 import datetime
+import json
 import pandas as pd
+import requests
 
 
 def get_daily_weather_data():

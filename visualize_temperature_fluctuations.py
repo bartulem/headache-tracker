@@ -3,8 +3,8 @@ This script contains the function for visualizing temperature fluctuations.
 @author: bartulem
 """
 
-import os
 import json
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 from helper_functions import get_cumulative_days_for_period, get_temperature

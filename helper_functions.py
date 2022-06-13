@@ -3,8 +3,8 @@ This script contains several helper functions for visualizing temperature data.
 @author: bartulem
 """
 
-import numpy as np
 import calendar
+import numpy as np
 
 
 def get_cumulative_days_for_period(start='1-2019', end='12-2019'):
