@@ -1,5 +1,6 @@
 # ignore notebooks
 *.ipynb
+run.py
 # ignore images dir
 images/
 .idea/
